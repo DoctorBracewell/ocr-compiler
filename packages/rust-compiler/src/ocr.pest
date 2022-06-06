@@ -9,26 +9,35 @@ program = _{SOI ~ lines ~ EOI}
  * However both line and statement are silent so this logic will not appear in the parse tree
  */
 lines = _{
-	lineBreak* ~ (line | statement)* ~ lineBreak* 
+	NEWLINE* ~ (line | statement)* ~ NEWLINE* 
 }
 
 line = _{
-	statement ~ lineBreak+
+	statement ~ NEWLINE+
 }
 
-statement = _{ comment }
+statement = _{ comment | assignment }
 
 /* STATEMENT TYPES */
 
-commentDelimeter = _{ "//"}
-comment = { commentDelimeter ~ (!(lineBreak) ~ ANY)* }
+identifier = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
 
-declarationKeyword = { "const" | "global "}
-assignment = {
-	declarationKeyword? ~ WHITESPACE+ ~ "test" ~ "=" ~ "test"
+commentDelimeter = _{ "//"}
+comment = { commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
+
+declarationKeyword = _{ constant | global }
+assignment = ${
+	(declarationKeyword ~ WHITESPACE+)? ~ WHITESPACE* ~ identifier ~ WHITESPACE* ~ assignmentOperator ~ WHITESPACE* ~ "test"
 }
+
+/* KEYWORDS */
+constant = { "const" }
+global = { "global" }
+
+/* OPERATORS */
+assignmentOperator = _{ "=" }
 
 /* MISC */
 
-lineBreak = _{ "\n" | "\r" }
 WHITESPACE = _{ " " | "\t" }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
