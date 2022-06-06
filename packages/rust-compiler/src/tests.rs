@@ -1,4 +1,5 @@
 use super::*;
+use parser::parse;
 
 #[test]
 fn parse_padded_linebreaks() {
