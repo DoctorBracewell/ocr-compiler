@@ -2,3 +2,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+a {
+	@apply underline text-blue-600 hover:text-blue-800;
+}
+
+p {
+	@apply mb-1;
+}
