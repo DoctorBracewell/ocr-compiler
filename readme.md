@@ -2,7 +2,7 @@
 
 Hello! This is a monorepo containing packages and apps for an implementation of the [OCR GCSE Reference Language](https://www.ocr.org.uk/Images/558027-specification-gcse-computer-science-j277.pdf#page=27).
 
-It's currently in very early stages, but in my mind the end result will look something like so:
+It's currently in **very early stages**, no READMEs or documentation or codebases are complete whatsoever, but the end goal is for something like below:
 
 - A rust library that implements a transpilation pipeline of `Reference Language -> JavaScript` with WebAssembly bindings.
 - A stand-alone svelte component that implements a full editor for the language, including syntax highlighting, an input-output system and a file system.
