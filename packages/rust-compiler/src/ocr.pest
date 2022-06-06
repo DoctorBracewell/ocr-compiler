@@ -1,0 +1,34 @@
+/* PROGRAM MATCHING */
+
+program = _{SOI ~ lines ~ EOI}
+
+/* 
+ * A line list can have any number of line breaks at the start and end and any number of lines in between.
+ * However the last line in a line list may be a statement (because there might not be a line break after it).
+ * So for the majority of the statement, the OR expression will match `line` but if the parser is on the final line and it doesn't have a line break after it, it will match it as a statement
+ * However both line and statement are silent so this logic will not appear in the parse tree
+ */
+lines = _{
+	lineBreak* ~ (line | statement)* ~ lineBreak* 
+}
+
+line = _{
+	statement ~ lineBreak+
+}
+
+statement = _{ comment }
+
+/* STATEMENT TYPES */
+
+commentDelimeter = _{ "//"}
+comment = { commentDelimeter ~ (!(lineBreak) ~ ANY)* }
+
+declarationKeyword = { "const" | "global "}
+assignment = {
+	declarationKeyword? ~ WHITESPACE+ ~ "test" ~ "=" ~ "test"
+}
+
+/* MISC */
+
+lineBreak = _{ "\n" | "\r" }
+WHITESPACE = _{ " " | "\t" }
