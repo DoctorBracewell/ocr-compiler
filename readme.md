@@ -4,7 +4,7 @@ Hello! This is a monorepo containing packages and apps for an implementation of 
 
 It's currently in very early stages, but in my mind the end result will look something like so:
 
-- A rust library that implements a transpilation pipeline of `Reference Language -> JavaS cript` with WebAssembly bindings.
+- A rust library that implements a transpilation pipeline of `Reference Language -> JavaScript` with WebAssembly bindings.
 - A stand-alone svelte component that implements a full editor for the language, including syntax highlighting, an input-output system and a file system.
 - A [website](https://brace.dev/ocr-compiler) which contains project information and links as well an instance of the editor component, available for use in classrooms or individually.
 
