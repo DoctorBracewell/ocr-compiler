@@ -1,33 +1,86 @@
-use super::*;
-use parser::parse;
+#[cfg(test)]
+mod parser {
+    use super::super::parser::parse;
 
-#[test]
-fn parse_padded_linebreaks() {
-    let result = parse("\n\n\n// This is a comment statement!\n\n\n").unwrap();
-    dbg!(result);
+    #[test]
+    fn padded_linebreaks() {
+        parse("\n\n\n// This is a comment statement!\n\n\n").unwrap();
+    }
+
+    #[test]
+    fn padded_statement() {
+        parse("    \n  // This is a comment statement! \n  ").unwrap();
+    }
+
+    #[test]
+    fn comment() {
+        parse("// This is a comment statement!").unwrap();
+    }
+
+    #[test]
+    fn identifiers() {
+        parse("foo").unwrap();
+        parse("Foo").unwrap();
+        parse("FOO").unwrap();
+        parse("foo_bar").unwrap();
+        parse("foo_bar_123").unwrap();
+    }
+
+    #[test]
+    fn invalid_identifier() {
+        parse("1_foo").unwrap_err();
+        parse("const").unwrap_err();
+    }
+
+    #[test]
+    fn variable_assignment() {
+        parse("foo = 1").unwrap();
+        parse("const foo=1").unwrap();
+        parse("global  foo  =  1").unwrap();
+    }
+
+    #[test]
+    fn array_declaration() {
+        parse("array foo[1]").unwrap();
+        parse("array foo[1,2,3]").unwrap();
+        parse("array foo[1] = []").unwrap();
+        parse("array foo[bar] = [1,2,baz]").unwrap();
+        parse("array foo[1,2,3] = [[1,2,3],[bar,baz,xyz],[]]").unwrap();
+    }
+
+    #[test]
+    fn array_assignments() {
+        parse("foo[1] = bar").unwrap();
+        parse("foo[0,1,bar] = baz").unwrap();
+    }
+
+    #[test]
+    fn invalid_arrays() {
+        parse("array foo[]").unwrap_err();
+        parse("array foo[] = [1,2,3]").unwrap_err();
+        parse("foo[] = 1").unwrap_err();
+    }
+
+    #[test]
+    fn array_expressions() {
+        parse("[]").unwrap();
+        parse("[foo,bar,1,2,3]").unwrap();
+        parse("[[foo,bar],[1,2,3,[baz]]]").unwrap();
+        parse("foo[1]").unwrap();
+    }
+
+    #[test]
+    fn function_call_expressions() {
+        parse("foo()").unwrap();
+        // parse("foo(bar)").unwrap();
+        // parse("foo( bar, baz, 1 )").unwrap();
+    }
+
+    #[test]
+    #[allow(unused_must_use)]
+    fn debug() {
+        let program = "foo(1,2,3)";
+        dbg!(parse(program));
+        panic!("");
+    }
 }
-
-#[test]
-fn parse_padded_statement() {
-    let result = parse("    \n  // This is a comment statement! \n  ").unwrap();
-    dbg!(result);
-}
-
-#[test]
-fn parse_comment() {
-    let result = parse("// This is a comment statement!").unwrap();
-    dbg!(result);
-}
-
-#[test]
-fn parse_assignment() {
-    parse("variable_name = test").unwrap();
-    parse("const variable_name1=test").unwrap();
-    parse("global  variableName  =  test").unwrap();
-}
-
-// #[test]
-// fn debug() {
-//     dbg!(parse("//comment!").unwrap());
-//     panic!("");
-// }

@@ -1,5 +1,4 @@
 /* PROGRAM MATCHING */
-
 program = _{SOI ~ lines ~ EOI}
 
 /* 
@@ -16,28 +15,70 @@ line = _{
 	statement ~ NEWLINE+
 }
 
-statement = _{ comment | assignment }
+statement = _{ comment | assignment | expression }
 
 /* STATEMENT TYPES */
 
-identifier = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
-
+// Comment
 commentDelimeter = _{ "//"}
 comment = { commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
 
-declarationKeyword = _{ constant | global }
-assignment = ${
-	(declarationKeyword ~ WHITESPACE+)? ~ WHITESPACE* ~ identifier ~ WHITESPACE* ~ assignmentOperator ~ WHITESPACE* ~ "test"
+// Assignments & Declarations
+declarationKeyword = _{ constKeyword | globalKeyword }
+assignment = _{
+	arrayDeclaration | arrayAssignment | variableAssignment
 }
 
+variableAssignment = ${
+	(declarationKeyword ~ WHITESPACE+)? ~ WHITESPACE* ~ identifier ~ WHITESPACE* ~ assignmentOperator ~ WHITESPACE* ~ expression
+}
+
+// Array Declarations
+arrayIndex = _{ integer }
+arrayValue = { arrayValues | expression }
+arrayValues = { "[" ~ (arrayValue ~ ",")* ~ arrayValue ~ "]" }
+array = { arrayValues | "[]"}
+arrayIndexing = { identifier ~ arrayValues }
+arraySetting = ${
+	WHITESPACE* ~ assignmentOperator ~ WHITESPACE*
+}
+arrayDeclaration = ${
+	arrayKeyword ~ WHITESPACE+ ~ arrayIndexing ~ (arraySetting ~ array)?
+}
+arrayAssignment = ${ 
+	arrayIndexing ~ arraySetting ~ expression
+}
+
+// Function calls
+functionCall = ${
+	identifier ~ functionParameters
+}
+functionParameters = {
+	"(" ~ ((expression ~ ",")* ~ expression)? ~ ")"
+}
+
+/* EXPRESSIONS */
+expression = _{
+	arrayIndexing | array | functionCall | identifier | integer
+}
+
+identifier = @{ !keywords ~ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+integer = @{ ASCII_DIGIT+ ~ !identifier}
+
 /* KEYWORDS */
-constant = { "const" }
-global = { "global" }
+constKeyword = { "const" }
+globalKeyword = { "global" }
+arrayKeyword = { "array"}
+
+keywords = {
+	constKeyword | 
+	globalKeyword | 
+	arrayKeyword
+}
 
 /* OPERATORS */
 assignmentOperator = _{ "=" }
 
 /* MISC */
-
 WHITESPACE = _{ " " | "\t" }
 COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
