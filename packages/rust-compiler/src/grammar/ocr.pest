@@ -26,18 +26,23 @@ comment = { commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
 // Assignments & Declarations
 declarationKeyword = _{ constKeyword | globalKeyword }
 assignment = _{
-	arrayDeclaration | arrayAssignment | variableAssignment
+	arrayDeclaration | arrayAssignment | taggedVariableAssignment | variableAssignment
 }
 
-variableAssignment = ${
-	(declarationKeyword ~ WHITESPACE+)? ~ WHITESPACE* ~ identifier ~ WHITESPACE* ~ assignmentOperator ~ WHITESPACE* ~ expression
+variableAssignment = !{
+	identifier ~ assignmentOperator ~ expression
+}
+
+taggedVariableAssignment = ${
+	declarationKeyword ~ WHITESPACE+ ~ variableAssignment
 }
 
 // Array Declarations
 arrayIndex = _{ integer }
-arrayValue = { arrayValues | expression }
-arrayValues = { "[" ~ (arrayValue ~ ",")* ~ arrayValue ~ "]" }
-array = { arrayValues | "[]"}
+arrayValue = _{ arrayValues | expression }
+arrayValues = !{ "[" ~ (arrayValue ~ ",")* ~ arrayValue ~ "]" }
+arrayEmptyValues = { "[" ~ "]" }
+array = { arrayValues | arrayEmptyValues }
 arrayIndexing = { identifier ~ arrayValues }
 arraySetting = ${
 	WHITESPACE* ~ assignmentOperator ~ WHITESPACE*
@@ -54,7 +59,7 @@ functionCall = ${
 	identifier ~ functionParameters
 }
 functionParameters = {
-	"(" ~ ((expression ~ ",")* ~ expression)? ~ ")"
+	"(" ~ ((expression ~ "," ~ WHITESPACE*)* ~ expression)? ~ ")"
 }
 
 /* EXPRESSIONS */
@@ -62,19 +67,23 @@ expression = _{
 	arrayIndexing | array | functionCall | identifier | integer
 }
 
-identifier = @{ !keywords ~ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
 integer = @{ ASCII_DIGIT+ ~ !identifier}
 
-/* KEYWORDS */
-constKeyword = { "const" }
-globalKeyword = { "global" }
-arrayKeyword = { "array"}
+/* IDENTIFIERS */ 
+identifierCharacters = _{ ASCII_ALPHANUMERIC | "_" }
+identifier = @{ !keyword ~ (ASCII_ALPHA | "_") ~ identifierCharacters* }
 
-keywords = {
+/* KEYWORDS */
+keyword = @{
+	(
 	constKeyword | 
 	globalKeyword | 
 	arrayKeyword
+	) ~ !identifierCharacters
 }
+constKeyword = { "const" }
+globalKeyword = { "global" }
+arrayKeyword = { "array"}
 
 /* OPERATORS */
 assignmentOperator = _{ "=" }

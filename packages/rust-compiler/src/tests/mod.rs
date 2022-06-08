@@ -15,6 +15,7 @@ mod parser {
     #[test]
     fn comment() {
         parse("// This is a comment statement!").unwrap();
+        parse("/* This is a comment statement! */").unwrap();
     }
 
     #[test]
@@ -24,6 +25,7 @@ mod parser {
         parse("FOO").unwrap();
         parse("foo_bar").unwrap();
         parse("foo_bar_123").unwrap();
+        parse("const_foo").unwrap();
     }
 
     #[test]
@@ -35,7 +37,7 @@ mod parser {
     #[test]
     fn variable_assignment() {
         parse("foo = 1").unwrap();
-        parse("const foo=1").unwrap();
+        parse("constfoo=1").unwrap();
         parse("global  foo  =  1").unwrap();
     }
 
@@ -55,13 +57,6 @@ mod parser {
     }
 
     #[test]
-    fn invalid_arrays() {
-        parse("array foo[]").unwrap_err();
-        parse("array foo[] = [1,2,3]").unwrap_err();
-        parse("foo[] = 1").unwrap_err();
-    }
-
-    #[test]
     fn array_expressions() {
         parse("[]").unwrap();
         parse("[foo,bar,1,2,3]").unwrap();
@@ -70,17 +65,26 @@ mod parser {
     }
 
     #[test]
-    fn function_call_expressions() {
-        parse("foo()").unwrap();
-        // parse("foo(bar)").unwrap();
-        // parse("foo( bar, baz, 1 )").unwrap();
+    fn invalid_arrays() {
+        parse("array foo[]").unwrap_err();
+        parse("array foo[] = [1,2,3]").unwrap_err();
+        parse("array const[]").unwrap_err();
+        parse("foo[] = 1").unwrap_err();
     }
 
     #[test]
-    #[allow(unused_must_use)]
-    fn debug() {
-        let program = "foo(1,2,3)";
-        dbg!(parse(program));
-        panic!("");
+    fn function_call_expressions() {
+        parse("foo()").unwrap();
+        parse("foo(bar)").unwrap();
+        parse("foo(bar, baz)").unwrap();
+        parse("foo(1, [bar, baz])").unwrap();
     }
+
+    // #[test]
+    // #[allow(unused_must_use)]
+    // fn debug() {
+    //     let program = "foo(1, [1, 1])";
+    //     dbg!(parse(program));
+    //     panic!("");
+    // }
 }
