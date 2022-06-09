@@ -2,7 +2,7 @@
 
 Hello! This is a monorepo containing packages and apps for an implementation of the [OCR GCSE Reference Language](https://www.ocr.org.uk/Images/558027-specification-gcse-computer-science-j277.pdf#page=27).
 
-**The majority of work is currently taking place on the [rust-compiler package](https://github.com/DoctorBracewell/ocr-compiler/tree/parser/packages/rust-compiler) on the `parser` branch, as I work on writing the parsing expression grammar and tests to go along with it.**
+### The majority of work is currently taking place on the [rust-compiler package](https://github.com/DoctorBracewell/ocr-compiler/tree/parser/packages/rust-compiler) on the `parser` branch, as I work on writing the parsing expression grammar and tests to go along with it.
 
 The project is currently in **very early stages**, no READMEs, documentation or codebases are complete whatsoever, but the end goal is for something like below:
 
