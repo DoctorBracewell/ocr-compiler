@@ -38,7 +38,6 @@ taggedVariableAssignment = ${
 }
 
 // Array Declarations
-arrayIndex = _{ integer }
 arrayValue = _{ arrayValues | expression }
 arrayValues = !{ "[" ~ (arrayValue ~ ",")* ~ arrayValue ~ "]" }
 arrayEmptyValues = { "[" ~ "]" }
@@ -64,10 +63,25 @@ functionParameters = {
 
 /* EXPRESSIONS */
 expression = _{
-	arrayIndexing | array | functionCall | identifier | integer
+	"(" ~ expressionTypes ~ ")" | expressionTypes
+}
+expressionTypes = _{
+	arrayIndexing | array | functionCall | identifier | literal
 }
 
-integer = @{ ASCII_DIGIT+ ~ !identifier}
+/* DATA TYPES */
+literal = {
+	(
+	number | 
+	string
+	) ~ !identifierCharacters
+}
+number = @{
+	("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)?
+}
+string = {
+	"d"
+}
 
 /* IDENTIFIERS */ 
 identifierCharacters = _{ ASCII_ALPHANUMERIC | "_" }
