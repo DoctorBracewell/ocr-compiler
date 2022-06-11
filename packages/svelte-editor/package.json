@@ -1,6 +1,6 @@
 {
 	"name": "@ocr-compiler/svelte-editor",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"homepage": "https://github.com/DoctorBracewell/ocr-compiler/packages/svelte-editor",
 	"description": "A svelte component with WASM bindings to a rust compiler for the OCR Reference Language",
 	"license": "Apache-2.0",
