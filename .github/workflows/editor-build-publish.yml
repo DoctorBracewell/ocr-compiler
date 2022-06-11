@@ -1,14 +1,17 @@
 name: Build and Publish Editor
 
 on:
-  push:
+  pull_request_target:
+    types:
+      - "main"
     branches:
-      - "master"
+      - "editor"
     paths:
       - "packages/svelte-editor/**"
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
