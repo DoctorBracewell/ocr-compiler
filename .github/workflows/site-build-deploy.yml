@@ -1,14 +1,17 @@
-name: Build and Deploy
+name: Build and Deploy Site
+
 on:
   push:
     branches:
       - "main"
     paths:
       - "apps/svelte-site/**"
+
 permissions:
   contents: write
+
 jobs:
-  build-and-deploy:
+  site-build-reploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
