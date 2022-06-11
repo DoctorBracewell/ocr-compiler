@@ -3,7 +3,7 @@ name: Build and Publish Editor
 on:
   pull_request_target:
     types:
-      - "main"
+      - closed
     branches:
       - "editor"
     paths:
