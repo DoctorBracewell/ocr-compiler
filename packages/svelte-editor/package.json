@@ -10,8 +10,9 @@
 		"build": "svelte-kit build",
 		"preview": "svelte-kit preview",
 		"package": "svelte-kit package",
-		"publish": "npm run package && npm publish ./package --access public",
-		"test": "playwright test"
+		"test": "playwright test",
+		"prepublish": "npm run package",
+		"publish": "cd ./package && npm publish --access public"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.22.2",

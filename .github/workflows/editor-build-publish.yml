@@ -1,0 +1,29 @@
+name: Build and Publish Editor
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "packages/svelte-editor/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install and Publish
+        run: |
+          cd packages/svelte-editor
+          npm ci
+          npm run publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
