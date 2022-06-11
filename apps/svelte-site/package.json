@@ -10,6 +10,7 @@
 		"check": "svelte-check --tsconfig ./tsconfig.json"
 	},
 	"devDependencies": {
+		"@ocr-compiler/svelte-editor": "^0.0.2",
 		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
 		"@tsconfig/svelte": "^2.0.1",
 		"autoprefixer": "^10.4.4",

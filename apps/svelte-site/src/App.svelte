@@ -1,3 +1,7 @@
+<script>
+	import { Editor } from "@ocr-compiler/svelte-editor";
+</script>
+
 <main class="w-full h-screen flex flex-col">
 	<div class="flex flex-col m-auto mt-[20%] max-w-[70%]">
 		<h1 class="mx-auto mb-7 text-5xl">Hello!</h1>
@@ -20,4 +24,6 @@
 		</p>
 		<p>~ Brace</p>
 	</div>
+
+	<Editor />
 </main>
