@@ -1,5 +1,5 @@
 <script>
-	import { Editor } from "@ocr-compiler/svelte-editor";
+	import { Editor } from "../package/index";
 </script>
 
 <main class="w-full h-screen flex flex-col">
