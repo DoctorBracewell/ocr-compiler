@@ -23,8 +23,10 @@ jobs:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
 
-      - name: Build
+      - name: Setup wasm-pack
         uses: jetli/wasm-pack-action@v0.3.0
+
+      - name: Build
         run: |
           cd packages/compiler
           wasm-pack build --scope ocr-compiler --target web
