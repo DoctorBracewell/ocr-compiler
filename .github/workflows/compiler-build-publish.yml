@@ -1,0 +1,38 @@
+name: Build and Publish Compiler
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - "compiler"
+    paths:
+      - "packages/compiler/**"
+
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Build
+        uses: jetli/wasm-pack-action@v0.3.0
+        run: |
+          cd packaes/compiler
+          wasm-pack build --scope ocr-compiler --target web
+          node update_package_json.js
+
+      - name: Publish
+        run: |
+          cd pkg
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

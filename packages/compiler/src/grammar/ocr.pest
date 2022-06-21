@@ -1,0 +1,161 @@
+/* 
+ * PROGRAM MATCHING
+ */
+program = _{SOI ~ lines ~ EOI}
+
+lines = _{ NEWLINE* ~ (line | statement)* ~ NEWLINE* }
+line = _{ statement ~ NEWLINE+ }
+
+statement = _{ comment | assignment | expression }
+
+/*
+ * COMMENTS
+ */
+commentDelimeter = _{ "//"}
+comment = { commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
+
+/*
+ * ASSIGNMENTS & DECLARATIONS
+ */
+declarationKeyword = _{ constKeyword | globalKeyword }
+assignment = _{
+	arrayDeclaration | 
+	arrayAssignment | 
+	taggedVariableAssignment | 
+	variableAssignment
+}
+
+variableAssignment = !{
+	identifier ~ assignmentOperator ~ expression
+}
+
+taggedVariableAssignment = ${
+	declarationKeyword ~ WHITESPACE+ ~ variableAssignment
+}
+
+/*
+ * ARRAYS
+ */ 
+arrayValue = _{ arrayValues | expression }
+arrayValues = !{ "[" ~ (arrayValue ~ ",")* ~ arrayValue ~ "]" }
+arrayEmptyValues = { "[" ~ "]" }
+array = { arrayValues | arrayEmptyValues }
+arrayIndexing = { identifier ~ arrayValues }
+arraySetting = ${
+	WHITESPACE* ~ assignmentOperator ~ WHITESPACE*
+}
+arrayDeclaration = ${
+	arrayKeyword ~ WHITESPACE+ ~ arrayIndexing ~ (arraySetting ~ array)?
+}
+arrayAssignment = ${ 
+	arrayIndexing ~ arraySetting ~ expression
+}
+/* 
+ * EXPRESSIONS
+ */
+expression = _{
+	"(" ~ expressionTypes ~ ")" | expressionTypes
+}
+expressionTypes = _{
+	arrayIndexing | array | functionCall | identifier | literal //| binaryOperation
+}
+
+/*
+ * FUNCTION CALLS
+ */
+functionCall = ${
+	identifier ~ functionParameters
+}
+functionParameters = {
+	"(" ~ ((expression ~ "," ~ WHITESPACE*)* ~ expression)? ~ ")"
+}
+
+/* 
+ * DATA TYPES
+ */
+literal = {
+	(
+	number | 
+	boolean |
+	null |
+	string
+	) ~ !identifierCharacters
+}
+
+boolean = { "true" | "false" }
+null = { "null" }
+
+number = { negativeNumber | positiveNumber}
+positiveNumber = @{ "+"? ~ numberValue }
+negativeNumber = @{ "-" ~ numberValue }
+numberValue = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)? }
+
+// String parsing, taken from the pest.rs book
+string = ${ "\"" ~ inner ~ "\"" }
+inner = @{ char* }
+char = {
+    !("\"" | "\\") ~ ANY
+    | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+    | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
+/*
+ * IDENTIFIERS 
+ */ 
+identifierCharacters = _{ ASCII_ALPHANUMERIC | "_" }
+identifier = @{ !keywords ~ (ASCII_ALPHA | "_") ~ identifierCharacters* }
+
+/* 
+ * KEYWORDS 
+ */
+keywords = @{
+	(
+	constKeyword | 
+	globalKeyword | 
+	arrayKeyword |
+	operator
+	) ~ !identifierCharacters
+}
+constKeyword = { "const" }
+globalKeyword = { "global" }
+arrayKeyword = { "array"}
+
+/* 
+ * OPERATORS 
+ */
+
+// binaryOperation = {
+// 	expression ~ operator ~ expression
+// }
+
+operator = {
+	additionOperator | 
+	subtractionOperator |
+	multiplicationOperator |
+	divisionOperator |
+	modulusOperator |
+	quotientOperator |
+	logicalAndOperator |
+	logicalOrOperator |
+	logicalNotOperator
+}
+
+additionOperator = { "+" }
+subtractionOperator = { "-" }
+multiplicationOperator = { "*" }
+divisionOperator = { "/" }
+exponentOperator = { "^" }
+modulusOperator = { "MOD" }
+quotientOperator = { "DIV" }
+
+logicalAndOperator = { "AND" }
+logicalOrOperator = { "OR" }
+logicalNotOperator = { "NOT" }
+
+assignmentOperator = _{ "=" }
+
+/* 
+ * MISC 
+ */
+WHITESPACE = _{ " " | "\t" }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
