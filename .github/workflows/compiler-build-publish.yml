@@ -26,7 +26,7 @@ jobs:
       - name: Build
         uses: jetli/wasm-pack-action@v0.3.0
         run: |
-          cd packaes/compiler
+          cd packages/compiler
           wasm-pack build --scope ocr-compiler --target web
           node update_package_json.js
 
