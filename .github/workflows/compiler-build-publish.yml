@@ -35,7 +35,10 @@ jobs:
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+  bump-editor-version:
+    needs: compiler-build-publish
+    runs-on: ubuntu-latest
+    steps:
       - name: Update Version for Editor
         run: |
           cd packages/editor
@@ -44,4 +47,4 @@ jobs:
       - name: Commit Updated Version
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: 🤖 Automatically updated compiler version for editor package
+          commit_message: 🤖 Automatically updated compiler version for editor package.
