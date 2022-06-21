@@ -8,7 +8,7 @@ on:
       - "packages/compiler/**"
 
 jobs:
-  build:
+  compiler-build-publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,7 +31,7 @@ jobs:
 
       - name: Publish
         run: |
-          cd pkg
+          cd packages/compiler/pkg
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
