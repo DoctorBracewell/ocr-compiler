@@ -1,6 +1,6 @@
 [package]
 name = "compiler"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 license = "Apache-2.0"
 description = "A compiler for the OCR Reference Language"
@@ -8,7 +8,7 @@ authors = ["DrBracewell"]
 repository = "https://github.com/DoctorBracewell/ocr-compiler/tree/main/packages/rust-compiler"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pest = "2.1.3"

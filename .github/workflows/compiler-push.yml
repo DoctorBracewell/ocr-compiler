@@ -1,4 +1,4 @@
-name: compiler-build-publish
+name: Test, Build, Publish Compiler + Bump Editor Dependency
 
 on:
   push:
@@ -8,7 +8,23 @@ on:
       - "packages/compiler/**"
 
 jobs:
-  compiler-build-publish:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Test
+        run: |
+          cd packages/compiler
+          cargo test
+  build-publish:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,13 +52,22 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   bump-editor-version:
-    needs: compiler-build-publish
+    needs: build-publish
     runs-on: ubuntu-latest
     steps:
-      - name: Update Version for Editor
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Bump Version for Editor
         run: |
           cd packages/editor
-          npm update @ocr-compiler/compiler
+          npm install @ocr-compiler/compiler@latest --save
 
       - name: Commit Updated Version
         uses: stefanzweifel/git-auto-commit-action@v4

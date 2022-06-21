@@ -7,6 +7,7 @@ Desired features:
 - Full transpilation pipeline including:
   - Parser, currently being built with pest.rs
   - Syntax error messages
+  - AST Generator
   - Transpiler
 - Access to each module seperately
 - Extensive test coverage for each module
