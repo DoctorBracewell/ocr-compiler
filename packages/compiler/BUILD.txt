@@ -1,4 +1,0 @@
-wasm-pack build --scope ocr-compiler --target web
-node update_package_json.js
-cd pkg
-npm publish --access public
