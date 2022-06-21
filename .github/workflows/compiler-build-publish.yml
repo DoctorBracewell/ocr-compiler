@@ -1,4 +1,4 @@
-name: Build and Publish Compiler
+name: compiler-build-publish
 
 on:
   push:
@@ -35,3 +35,13 @@ jobs:
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Update Version for Editor
+        run: |
+          cd packages/editor
+          npm update @ocr-compiler/compiler
+
+      - name: Commit Updated Version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 🤖 Automatically updated compiler version for editor package

@@ -1,26 +1,23 @@
-name: Build and Publish Editor
+name: editor-build-publish
 
 on:
-  pull_request_target:
-    types:
-      - closed
+  push:
     branches:
       - "main"
     paths:
-      - "packages/svelte-editor/**"
+      - "packages/editor/**"
 
 jobs:
   build:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version: 16
           registry-url: "https://registry.npmjs.org"
 
       - name: Install and Publish
