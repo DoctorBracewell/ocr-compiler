@@ -8,7 +8,7 @@ authors = ["DrBracewell"]
 repository = "https://github.com/DoctorBracewell/ocr-compiler/tree/main/packages/rust-compiler"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 pest = "2.1.3"
