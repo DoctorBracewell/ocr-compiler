@@ -23,7 +23,7 @@ jobs:
         run: |
           cd packages/compiler
           cargo test
-  build-publish:
+  build-and-publish:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   bump-editor-version:
-    needs: build-publish
+    needs: build-and-publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
