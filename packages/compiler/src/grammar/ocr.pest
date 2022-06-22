@@ -50,6 +50,7 @@ arrayDeclaration = ${
 arrayAssignment = ${ 
 	arrayIndexing ~ arraySetting ~ expression
 }
+
 /* 
  * EXPRESSIONS
  */
