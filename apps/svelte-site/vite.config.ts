@@ -7,6 +7,6 @@ export default defineConfig({
 	build: {
 		minify: false,
 	},
-	plugins: [wasmPack(["./package/compiler"]), svelte()],
+	plugins: [wasmPack([], ["@ocr-compiler/compiler"]), svelte()],
 	base: "./",
 });

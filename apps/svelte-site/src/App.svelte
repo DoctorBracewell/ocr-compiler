@@ -1,5 +1,5 @@
 <script>
-	import { Editor } from "../package/index";
+	import Editor from "@ocr-compiler/editor";
 </script>
 
 <main class="w-full h-screen flex flex-col">
