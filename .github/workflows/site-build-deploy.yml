@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream:.github/workflows/site-build-deploy.yml
 name: Build and Deploy Site
 
 on:
@@ -29,3 +30,35 @@ jobs:
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: apps/svelte-site/dist # The folder the action should deploy.
+=======
+name: Build -> Deploy Site
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "apps/svelte-site/**"
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install and Build
+        run: |
+          cd apps/svelte-site
+          npm ci
+          npm run build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: apps/svelte-site/dist # The folder the action should deploy.
+>>>>>>> Stashed changes:.github/workflows/site-push.yml
