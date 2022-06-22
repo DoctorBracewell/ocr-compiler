@@ -1,4 +1,4 @@
-name: Test -> Build -> Publish Compiler + Bump Editor Dependency
+name: "Compiler: Test -> Build -> Publish | Bump Editor Dependency"
 
 on:
   push:

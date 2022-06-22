@@ -1,4 +1,4 @@
-name: Publish Editor + Bump Site Dependency
+name: "Editor: Publish | Bump Site Dependency"
 
 on:
   push:
