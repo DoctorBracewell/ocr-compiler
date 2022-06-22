@@ -1,0 +1,38 @@
+name: Publish Editor + Bump Site Dependency
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "packages/editor/**"
+
+jobs:
+  publish-and-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish
+        run: |
+          cd packages/editor/package
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # - name: Bump Version for Site
+      #   run: |
+      #     cd apps/svelte-site/
+      #     npm install @ocr-compiler/editor@latest --save
+
+      # - name: Commit Updated Version
+      #   uses: stefanzweifel/git-auto-commit-action@v4
+      #   with:
+      #     commit_message: 🤖 Automatically updated editor version for site.
