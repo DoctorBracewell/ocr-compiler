@@ -1,5 +1,5 @@
 {
-	"name": "editor",
+	"name": "@ocr-compiler/editor-server",
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {

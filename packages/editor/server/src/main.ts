@@ -1,5 +1,4 @@
-import "./app.css";
-import Editor from "./components/Editor.svelte";
+import Editor from "@ocr-compiler/editor";
 
 const app = new Editor({
 	target: document.getElementById("app"),

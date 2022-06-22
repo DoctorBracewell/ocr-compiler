@@ -66,7 +66,7 @@ jobs:
 
       - name: Bump Version for Editor
         run: |
-          cd packages/editor
+          cd packages/editor/package
           npm install @ocr-compiler/compiler@latest --save
 
       - name: Commit Updated Version
