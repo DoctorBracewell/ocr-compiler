@@ -27,6 +27,6 @@
 		"vite-plugin-wasm-pack": "^0.1.12"
 	},
 	"dependencies": {
-		"@ocr-compiler/editor": "^0.3.1"
+		"@ocr-compiler/editor": "^0.3.3"
 	}
 }
