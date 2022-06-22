@@ -1,4 +1,5 @@
 <script>
+	import "@ocr-compiler/editor/app.css";
 	import Editor from "@ocr-compiler/editor";
 </script>
 
