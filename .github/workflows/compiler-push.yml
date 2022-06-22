@@ -1,4 +1,4 @@
-name: Test, Build, Publish Compiler + Bump Editor Dependency
+name: Test -> Build -> Publish Compiler + Bump Editor Dependency
 
 on:
   push:
@@ -51,25 +51,25 @@ jobs:
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-  bump-editor-version:
-    needs: build-and-publish
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # bump-editor-version:
+  #   needs: build-and-publish
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: "https://registry.npmjs.org"
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         registry-url: "https://registry.npmjs.org"
 
-      - name: Bump Version for Editor
-        run: |
-          cd packages/editor/package
-          npm install @ocr-compiler/compiler@latest --save
+  #     - name: Bump Version for Editor
+  #       run: |
+  #         cd packages/editor/package
+  #         npm install @ocr-compiler/compiler@latest --save
 
-      - name: Commit Updated Version
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: 🤖 Automatically updated compiler version for editor package.
+  #     - name: Commit Updated Version
+  #       uses: stefanzweifel/git-auto-commit-action@v4
+  #       with:
+  #         commit_message: 🤖 Automatically updated compiler version for editor package.
