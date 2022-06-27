@@ -12,11 +12,12 @@ fn tagged_variable_assignment() {
                 globalKeyword(0, 6),
                 variableAssignment(7, 14, [
                     identifier(7, 10),
-                    literal(13, 14, [
-                        number(13, 14, [
+                    expression(13, 14, [
+                        literal(13, 14, [
                             positiveNumber(13, 14)
-                        ]),
+                        ])
                     ])
+
                 ])
             ]),
         ]

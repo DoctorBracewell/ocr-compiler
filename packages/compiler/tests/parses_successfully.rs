@@ -93,10 +93,19 @@ fn numbers() {
     parse("-123").unwrap();
 }
 
-// #[test]
+#[test]
+fn operator_expressions() {
+    parse("123 + 456").unwrap();
+    parse("123.456-foo").unwrap();
+    parse("(123 * -123) + 33").unwrap();
+    parse("5(33) - (foo + (6))").unwrap();
+    parse("foo ^ bar(123 MOD 456) / 789").unwrap(); // bugged
+}
+
+#[test]
 #[allow(dead_code, unused_must_use)]
 fn test() {
-    let program = "global foo = 1";
+    let program = "5 5";
     dbg!(parse(program));
     panic!();
 }

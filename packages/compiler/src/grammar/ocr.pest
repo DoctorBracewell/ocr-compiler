@@ -3,7 +3,7 @@
  */
 program = _{SOI ~ lines ~ EOI}
 
-lines = _{ NEWLINE* ~ (line | statement)* ~ NEWLINE* }
+lines = { NEWLINE* ~ line* ~ NEWLINE* }
 line = _{ statement ~ NEWLINE+ }
 
 statement = _{ comment | assignment | expression }
@@ -54,11 +54,14 @@ arrayAssignment = ${
 /* 
  * EXPRESSIONS
  */
-expression = _{
-	"(" ~ expressionTypes ~ ")" | expressionTypes
+expression = {
+	term ~ (operator ~ term)* 
 }
-expressionTypes = _{
-	arrayIndexing | array | functionCall | identifier | literal //| binaryOperation
+term = _{
+	termTypes | "(" ~ expression ~ ")"
+}
+termTypes = _{
+	arrayIndexing | array | functionCall | identifier | literal
 }
 
 /*
@@ -74,7 +77,7 @@ functionParameters = {
 /* 
  * DATA TYPES
  */
-literal = {
+literal = ${
 	(
 	number | 
 	boolean |
@@ -86,7 +89,7 @@ literal = {
 boolean = { "true" | "false" }
 null = { "null" }
 
-number = { negativeNumber | positiveNumber}
+number = _{ negativeNumber | positiveNumber}
 positiveNumber = @{ "+"? ~ numberValue }
 negativeNumber = @{ "-" ~ numberValue }
 numberValue = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)? }
@@ -119,21 +122,18 @@ keywords = @{
 }
 constKeyword = { "const" }
 globalKeyword = { "global" }
-arrayKeyword = { "array"}
+arrayKeyword = { "array" }
 
 /* 
  * OPERATORS 
  */
 
-// binaryOperation = {
-// 	expression ~ operator ~ expression
-// }
-
-operator = {
+operator = _{
 	additionOperator | 
 	subtractionOperator |
 	multiplicationOperator |
 	divisionOperator |
+	exponentOperator |
 	modulusOperator |
 	quotientOperator |
 	logicalAndOperator |
