@@ -11,9 +11,10 @@ fn padded_statement() {
 }
 
 #[test]
-fn comment() {
+fn comments() {
     parse("// This is a comment statement!").unwrap();
-    parse("/* This is a comment statement! */").unwrap();
+    // parse("/* This is a comment statement! */").unwrap();
+    parse("\n5\n").unwrap();
 }
 
 #[test]
@@ -98,14 +99,25 @@ fn operator_expressions() {
     parse("123 + 456").unwrap();
     parse("123.456-foo").unwrap();
     parse("(123 * -123) + 33").unwrap();
-    parse("5(33) - (foo + (6))").unwrap();
-    parse("foo ^ bar(123 MOD 456) / 789").unwrap(); // bugged
+    parse("(33) - (foo + (6))").unwrap();
+    parse("foo ^ bar(123 MOD 456) / 789").unwrap();
+    parse("123 <= foo AND 456 != bar").unwrap();
 }
 
 #[test]
+fn invalid_operator_expressions() {
+    parse("123 456").unwrap_err();
+    parse("123 MOD123").unwrap_err();
+    parse("123 + - foo").unwrap_err();
+    parse("-foo - -foo - - -foo").unwrap_err();
+    parse("123 + (foo - bar").unwrap_err();
+    parse("123 <=").unwrap_err();
+}
+
+// #[test]
 #[allow(dead_code, unused_must_use)]
 fn test() {
-    let program = "5 5";
+    let program = "123 + foo((-456) ^ bar, [1, 2,3])  AND  789 * baz[000]";
     dbg!(parse(program));
     panic!();
 }

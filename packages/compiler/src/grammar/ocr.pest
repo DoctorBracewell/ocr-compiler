@@ -1,10 +1,9 @@
 /* 
  * PROGRAM MATCHING
  */
-program = _{SOI ~ lines ~ EOI}
-
-lines = { NEWLINE* ~ line* ~ NEWLINE* }
-line = _{ statement ~ NEWLINE+ }
+program = _{SOI ~ lines ~ NEWLINE* ~ EOI}
+lines = _{ line ~ (NEWLINE ~ line)* }
+line = _{ NEWLINE* ~ statement }
 
 statement = _{ comment | assignment | expression }
 
@@ -54,7 +53,7 @@ arrayAssignment = ${
 /* 
  * EXPRESSIONS
  */
-expression = {
+expression = !{
 	term ~ (operator ~ term)* 
 }
 term = _{
@@ -70,8 +69,8 @@ termTypes = _{
 functionCall = ${
 	identifier ~ functionParameters
 }
-functionParameters = {
-	"(" ~ ((expression ~ "," ~ WHITESPACE*)* ~ expression)? ~ ")"
+functionParameters = !{
+	"(" ~ ((expression ~ ",")* ~ expression)* ~ ")"
 }
 
 /* 
@@ -128,12 +127,26 @@ arrayKeyword = { "array" }
  * OPERATORS 
  */
 
-operator = _{
+operator = ${
+	characterOperators |
+	wordOperators ~ WHITESPACE+
+}
+
+characterOperators = _{
 	additionOperator | 
 	subtractionOperator |
 	multiplicationOperator |
 	divisionOperator |
 	exponentOperator |
+	equalToOperator |
+	notEqualToOperator |
+	lessThanEqualToOperator |
+	greaterThanEqualToOperator |
+	lessThanOperator |
+	greaterThanOperator
+}
+
+wordOperators = _{
 	modulusOperator |
 	quotientOperator |
 	logicalAndOperator |
@@ -141,17 +154,24 @@ operator = _{
 	logicalNotOperator
 }
 
-additionOperator = { "+" }
-subtractionOperator = { "-" }
+additionOperator = !{ "+" }
+subtractionOperator = !{ "-" }
 multiplicationOperator = { "*" }
-divisionOperator = { "/" }
-exponentOperator = { "^" }
-modulusOperator = { "MOD" }
-quotientOperator = { "DIV" }
+divisionOperator = !{ "/" }
+exponentOperator = !{ "^" }
 
-logicalAndOperator = { "AND" }
-logicalOrOperator = { "OR" }
-logicalNotOperator = { "NOT" }
+equalToOperator = !{ "==" }
+notEqualToOperator = !{ "!=" }
+lessThanOperator = !{ "<" }
+lessThanEqualToOperator = !{ "<=" }
+greaterThanOperator = !{ ">" }
+greaterThanEqualToOperator = !{ ">=" }
+
+modulusOperator = !{ "MOD" }
+quotientOperator = !{ "DIV" }
+logicalAndOperator = !{ "AND" }
+logicalOrOperator = !{ "OR" }
+logicalNotOperator = !{ "NOT" }
 
 assignmentOperator = _{ "=" }
 
