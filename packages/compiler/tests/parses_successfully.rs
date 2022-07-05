@@ -14,7 +14,6 @@ fn padded_statement() {
 fn comments() {
     parse("// This is a comment statement!").unwrap();
     // parse("/* This is a comment statement! */").unwrap();
-    parse("\n5\n").unwrap();
 }
 
 #[test]
@@ -25,23 +24,24 @@ fn identifiers() {
     parse("foo_bar").unwrap();
     parse("foo_bar_123").unwrap();
     parse("const_foo").unwrap();
+    parse("next123").unwrap();
 }
 
 #[test]
-fn invalid_identifier() {
+fn invalid_identifiers() {
     parse("1_foo").unwrap_err();
     parse("const").unwrap_err();
 }
 
 #[test]
-fn variable_assignment() {
+fn variable_assignments() {
     parse("foo = 1").unwrap();
     parse("constfoo=1").unwrap();
     parse("global  foo  =  1").unwrap();
 }
 
 #[test]
-fn array_declaration() {
+fn array_declarations() {
     parse("array foo[1]").unwrap();
     parse("array foo[1,2,3]").unwrap();
     parse("array foo[1] = []").unwrap();
@@ -114,10 +114,31 @@ fn invalid_operator_expressions() {
     parse("123 <=").unwrap_err();
 }
 
+#[test]
+fn for_loops() {
+    parse("for i=0 to 10\nprint(i)\nnext i").unwrap();
+    parse("for  i  =  0  to  foo  \n    print(i) \n next   i").unwrap();
+    parse(
+        "for foo=bar to get(baz) + 123
+            // comment
+            foo + bar
+        next foo",
+    )
+    .unwrap();
+}
+
+#[test]
+fn invalid_for_loops() {
+    parse("for i=0 to 10\nnext i").unwrap_err();
+    parse("for i = 0 to 10\ni\nnext j").unwrap_err();
+    parse("for i = 0 too 10\ni\nnext i").unwrap_err();
+}
+
 // #[test]
 #[allow(dead_code, unused_must_use)]
 fn test() {
-    let program = "123 + foo((-456) ^ bar, [1, 2,3])  AND  789 * baz[000]";
+    let program = "for i=0 to 10\nnext i";
+    // let program = "foo = 5+5 ";
     dbg!(parse(program));
     panic!();
 }
