@@ -8,4 +8,4 @@
 	});
 </script>
 
-<h1>Test</h1>
+<h1 class="bg-red-500">Test</h1>
