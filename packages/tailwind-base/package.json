@@ -1,0 +1,19 @@
+{
+	"name": "@ocr-compiler/tailwind-base",
+	"version": "1.0.2",
+	"description": "Tailwind preset for ocr-compiler packages and apps",
+	"main": "tailwind.config.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/DoctorBracewell/ocr-compiler.git"
+	},
+	"author": "DrBracewell",
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/DoctorBracewell/ocr-compiler/issues"
+	},
+	"homepage": "https://github.com/DoctorBracewell/ocr-compiler#readme"
+}
