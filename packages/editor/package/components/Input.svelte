@@ -1,15 +1,12 @@
 <script lang="ts">
+	import { print_parse } from "@ocr-compiler/compiler";
+
 	import CodeMirror, { EditorConfiguration, Editor } from "codemirror";
 	import CodeMirrorComponent from "codemirror-svelte";
 	import "codemirror/lib/codemirror.css";
 	import "codemirror/theme/ayu-mirage.css";
-	import "codemirror/mode/markdown/markdown";
 
 	const editorOptions: EditorConfiguration = {
-		mode: {
-			name: "markdown",
-			highlightFormatting: true,
-		},
 		theme: "ayu-mirage",
 		lineNumbers: true,
 	};
@@ -17,8 +14,12 @@
 	// initial content
 	let value = "";
 
+	$: console.log(print_parse(value));
+
 	// event registration
-	const editorOnChange = (e: { detail: Editor }) => {};
+	const editorOnChange = (e: { detail: Editor }) => {
+		value = e.detail.getValue();
+	};
 	const editorOnScroll = (e: { detail: Editor }) => {};
 </script>
 

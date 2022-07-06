@@ -8,6 +8,6 @@
 	}
 
 	.CodeMirror {
-		@apply h-full !important;
+		@apply h-full max-w-full !important;
 	}
 }
