@@ -1,18 +1,18 @@
 {
-	"name": "server",
+	"name": "@ocr-compiler/server",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-check --tsconfig ./tsconfig.json"
+		"dev": "vite"
 	},
 	"devDependencies": {
+		"@ocr-compiler/tailwind-base": "^1.0.2",
 		"@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
 		"@tsconfig/svelte": "^2.0.1",
+		"@types/codemirror": "^5.60.5",
 		"autoprefixer": "^10.4.7",
+		"codemirror-svelte": "^1.1.0",
 		"postcss": "^8.4.14",
 		"postcss-load-config": "^4.0.1",
 		"svelte": "^3.44.0",
@@ -25,6 +25,7 @@
 		"vite-plugin-wasm-pack": "^0.1.12"
 	},
 	"dependencies": {
-		"@ocr-compiler/compiler": "^0.3.2"
+		"@ocr-compiler/compiler": "^0.3.2",
+		"codemirror": "^5.65.6"
 	}
 }
