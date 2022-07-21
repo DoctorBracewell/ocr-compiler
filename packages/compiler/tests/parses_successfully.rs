@@ -11,9 +11,9 @@ fn padded_statement() {
 }
 
 #[test]
-fn comment() {
+fn comments() {
     parse("// This is a comment statement!").unwrap();
-    parse("/* This is a comment statement! */").unwrap();
+    // parse("/* This is a comment statement! */").unwrap();
 }
 
 #[test]
@@ -24,23 +24,24 @@ fn identifiers() {
     parse("foo_bar").unwrap();
     parse("foo_bar_123").unwrap();
     parse("const_foo").unwrap();
+    parse("next123").unwrap();
 }
 
 #[test]
-fn invalid_identifier() {
+fn invalid_identifiers() {
     parse("1_foo").unwrap_err();
     parse("const").unwrap_err();
 }
 
 #[test]
-fn variable_assignment() {
+fn variable_assignments() {
     parse("foo = 1").unwrap();
     parse("constfoo=1").unwrap();
     parse("global  foo  =  1").unwrap();
 }
 
 #[test]
-fn array_declaration() {
+fn array_declarations() {
     parse("array foo[1]").unwrap();
     parse("array foo[1,2,3]").unwrap();
     parse("array foo[1] = []").unwrap();
@@ -93,10 +94,51 @@ fn numbers() {
     parse("-123").unwrap();
 }
 
-// #[test]
+#[test]
+fn operator_expressions() {
+    parse("123 + 456").unwrap();
+    parse("123.456-foo").unwrap();
+    parse("(123 * -123) + 33").unwrap();
+    parse("(33) - (foo + (6))").unwrap();
+    parse("foo ^ bar(123 MOD 456) / 789").unwrap();
+    parse("123 <= foo AND 456 != bar").unwrap();
+}
+
+#[test]
+fn invalid_operator_expressions() {
+    parse("123 456").unwrap_err();
+    parse("123 MOD123").unwrap_err();
+    parse("123 + - foo").unwrap_err();
+    parse("-foo - -foo - - -foo").unwrap_err();
+    parse("123 + (foo - bar").unwrap_err();
+    parse("123 <=").unwrap_err();
+}
+
+#[test]
+fn for_loops() {
+    parse("for i=0 to 10\nprint(i)\nnext i").unwrap();
+    parse("for  i  =  0  to  foo  \n    print(i) \n next   i").unwrap();
+    parse(
+        "for foo=bar to get(baz) + 123
+            // comment
+            foo + bar
+        next foo",
+    )
+    .unwrap();
+}
+
+#[test]
+fn invalid_for_loops() {
+    parse("for i=0 to 10\nnext i").unwrap_err();
+    parse("for i = 0 to 10\ni\nnext j").unwrap_err();
+    parse("for i = 0 too 10\ni\nnext i").unwrap_err();
+}
+
+#[test]
 #[allow(dead_code, unused_must_use)]
 fn test() {
-    let program = "global foo = 1";
+    let program = "if test then\nuw\nelseif 3== 2 then \nuwu\nelseif 4+   3 then\nuwu\nelse\n55\nendif";
+    // let program = "foo = 5+5 ";
     dbg!(parse(program));
     panic!();
 }
