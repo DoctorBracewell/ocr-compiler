@@ -58,7 +58,7 @@ impl JavascriptProgram {
     }
 }
 
-pub fn transpile(mut rules: Pairs<Rule>) -> String {
+pub fn transpile(rules: Pairs<Rule>) -> String {
     match transpilation_stages(rules) {
         Ok(text) => text,
         Err(err) => handle_errors(err),
@@ -66,35 +66,36 @@ pub fn transpile(mut rules: Pairs<Rule>) -> String {
 }
 
 fn handle_errors(error: TranspilerError) -> String {
-    panic!("{:?}", error);
+    dbg!(error);
+    String::from("j")
 }
 
 fn transpilation_stages(mut rules: Pairs<Rule>) -> Result<String, TranspilerError> {
     // Initialise program
-    let program_rule = rules.next().ok_or(TranspilationError)?; // Unwrap the program rule, never fails
+    let program_rule = rules.next().ok_or(TranspilationError)?;
     let mut result = JavascriptProgram::default();
 
     // Traverse program rules to generate program
-    program(program_rule, &mut result);
+    program(program_rule, &mut result)?;
 
-    // Initialise main program
+    // Initiliase variables
     result.queue_text(
-        result
+        &result
             .symbol_table
             .table
             .into_values()
             .fold(String::new(), |acc, s| {
-                acc + &format!("{}{}{}", LET, s.minified_name, SEMICOLON)
-            }),
+                acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
+            })
     );
 
     Ok(result.text)
 }
 
 fn program(
-    mut program_rule: Pair<Rule>,
+    program_rule: Pair<Rule>,
     result: &mut JavascriptProgram,
-) -> Result<String, TranspilerError> {
+) -> Result<(), TranspilerError> {
     for rule in program_rule.into_inner() {
         match rule.as_rule() {
             Rule::block => block(rule, result)?,
@@ -103,7 +104,7 @@ fn program(
         }
     }
 
-    Ok(result.text)
+    Ok(())
 }
 
 fn block(block: Pair<Rule>, result: &mut JavascriptProgram) -> Result<(), TranspilerError> {
