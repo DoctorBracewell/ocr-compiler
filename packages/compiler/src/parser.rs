@@ -5,7 +5,11 @@ use wasm_bindgen::prelude::*;
 #[grammar = "grammar/ocr.pest"]
 pub struct OCRParser;
 
-pub fn parse(program: &str) -> Result<Pairs<Rule>, Error<Rule>> {
+pub fn parse(program: &str) -> Pairs<Rule> {
+   parse_with_program(program).expect("Parse failed!")
+}
+
+pub fn parse_with_program(program: &str) -> Result<Pairs<Rule>, Error<Rule>> {
     OCRParser::parse(Rule::program, program)
 }
 

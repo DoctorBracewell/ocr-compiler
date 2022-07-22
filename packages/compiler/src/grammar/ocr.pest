@@ -2,7 +2,7 @@
  * PROGRAM MATCHING
  */
 //
-program = _{SOI ~ block ~ NEWLINE* ~ EOI}
+program = {SOI ~ block ~ NEWLINE* ~ EOI}
 block = !{ line ~ (NEWLINE ~ line)* }
 line = _{ NEWLINE* ~ statement }
 
@@ -21,15 +21,16 @@ statement = _{
  * COMMENTS
  */
 //
-commentDelimeter = _{ "//"}
-comment = { commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
+commentDelimeter = _{ "//" }
+commentLine = _{ commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
+comment = _{ commentLine | COMMENT }
 ///
 
 /*
  * ASSIGNMENTS & DECLARATIONS
  */
 //
-assignment = {
+assignment = !{
 	arrayDeclaration | 
 	arrayAssignment | 
 	taggedVariableAssignment | 
