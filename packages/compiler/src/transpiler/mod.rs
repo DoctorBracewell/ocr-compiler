@@ -80,9 +80,9 @@ fn transpilation_stages(mut rules: Pairs<Rule>) -> Result<String, TranspilerErro
 
     // Initiliase variables
     result.queue_text(
-        &result
+        &(result
             .symbol_table
-            .table
+            .table)
             .into_values()
             .fold(String::new(), |acc, s| {
                 acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
