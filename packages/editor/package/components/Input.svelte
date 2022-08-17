@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { print_parse } from "@ocr-compiler/compiler";
+	import { run_program } from "../program_controller";
 
 	import CodeMirror, { EditorConfiguration, Editor } from "codemirror";
 	import CodeMirrorComponent from "codemirror-svelte";
@@ -14,7 +14,7 @@
 	// initial content
 	let value = "";
 
-	$: console.log(print_parse(value));
+	$: run_program(value);
 
 	// event registration
 	const editorOnChange = (e: { detail: Editor }) => {

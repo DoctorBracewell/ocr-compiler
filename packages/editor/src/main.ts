@@ -1,4 +1,4 @@
-import Editor from "../package/components/Editor.svelte";
+import Editor from "../package/main";
 
 const app = new Editor({
 	target: document.getElementById("app"),
