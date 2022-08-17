@@ -105,6 +105,15 @@ fn operator_expressions() {
 }
 
 #[test]
+fn not_operator_expressions() {
+    parse_with_program("NOT true").unwrap();
+    parse_with_program("NOT NOT true").unwrap();
+    parse_with_program("NOT NOT (true)").unwrap();
+    parse_with_program("NOT NOT (NOT true)").unwrap();
+    parse_with_program("foo + NOT true").unwrap();
+}
+
+#[test]
 fn invalid_operator_expressions() {
     parse_with_program("123 456").unwrap_err();
     parse_with_program("123 MOD123").unwrap_err();
@@ -138,7 +147,7 @@ fn invalid_for_loops() {
 fn if_statements() {
     parse_with_program("if    foo then\n\nprint(foo)  \n\n endif").unwrap();
     parse_with_program(
-    "if foo then
+        "if foo then
             print(foo)
         elseif bar then
             print(bar)
@@ -147,8 +156,9 @@ fn if_statements() {
         else
             print(123)
         endif
-        "
-    ).unwrap();
+        ",
+    )
+    .unwrap();
     parse_with_program(
         "if 123 + 456 then
             print(123)
@@ -170,8 +180,8 @@ fn invalid_if_statements() {
 // #[test]
 #[allow(dead_code, unused_must_use)]
 fn test() {
-    let program = "global foo = 1";
-    // let program = "foo = 5+5 ";
+    let program = "NOT NOT (33)";
+
     dbg!(parse_with_program(program));
     panic!();
 }

@@ -74,7 +74,7 @@ expression = ${
 	term ~ (WHITESPACE* ~ operator ~ WHITESPACE* ~ term)*
 }
 term = _{
-	termTypes | "(" ~ expression ~ ")"
+	(logicalNotOperator ~ WHITESPACE+)* ~ (termTypes | "(" ~ expression ~ ")")
 }
 termTypes = _{
 	arrayIndexing | array | functionCall | identifier | literal
@@ -194,8 +194,7 @@ wordOperators = _{
 	modulusOperator |
 	quotientOperator |
 	logicalAndOperator |
-	logicalOrOperator |
-	logicalNotOperator
+	logicalOrOperator
 }
 
 additionOperator = !{ "+" }
