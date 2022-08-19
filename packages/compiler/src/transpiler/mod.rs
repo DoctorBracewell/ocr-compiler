@@ -2,17 +2,13 @@
 use crate::parser::Rule;
 use pest::iterators::Pairs;
 
+mod ast_walker;
 mod errors;
-use errors::{TranspilerError::*, *};
-
-mod program_walker;
-use program_walker::{program, JavascriptProgram};
-
-mod transpiler_data;
-use transpiler_data::*;
-
 mod symbol_table;
-use symbol_table::*;
+mod transpiler_data;
+
+use ast_walker::JavascriptProgram;
+use errors::{TranspilerError::*, *};
 
 pub fn transpile(rules: Pairs<Rule>) -> String {
     match transpilation_stages(rules) {
@@ -29,21 +25,11 @@ fn handle_errors(error: TranspilerError) -> String {
 fn transpilation_stages(mut rules: Pairs<Rule>) -> Result<String, TranspilerError> {
     // Initialise program
     let program_rule = rules.next().ok_or(TranspilationError)?;
-    let mut result = JavascriptProgram::default();
-    let mut symbol_table = SymbolTable::default();
+    let mut program = JavascriptProgram::default();
 
     // Traverse program rules to generate program
-    program(program_rule, &mut result, &mut symbol_table)?;
+    program.walk_ast(program_rule)?;
+    program.initialise_variables();
 
-    // Initiliase variables
-    result.prepend_text(
-        symbol_table
-            .variables
-            .into_values()
-            .fold(String::new(), |acc, s| {
-                acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
-            }),
-    );
-
-    Ok(result.text)
+    Ok(program.text)
 }
