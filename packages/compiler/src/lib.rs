@@ -1,5 +1,7 @@
-extern crate wasm_bindgen;
+#![feature(entry_insert)]
+
 extern crate pest;
+extern crate wasm_bindgen;
 #[macro_use]
 extern crate pest_derive;
 
