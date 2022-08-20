@@ -1,24 +1,36 @@
 /* 
  * PROGRAM MATCHING
  */
-program = _{SOI ~ lines ~ EOI}
+//
+program = {SOI ~ block ~ NEWLINE* ~ EOI}
+block = !{ line ~ (NEWLINE ~ line)* }
+line = _{ NEWLINE* ~ statement }
 
-lines = _{ NEWLINE* ~ (line | statement)* ~ NEWLINE* }
-line = _{ statement ~ NEWLINE+ }
-
-statement = _{ comment | assignment | expression }
+statement = _{ 
+	(
+	comment | 
+	assignment |
+	forLoop |
+	ifStatement | 
+	expression
+	) ~ WHITESPACE*
+}
+///
 
 /*
  * COMMENTS
  */
-commentDelimeter = _{ "//"}
-comment = { commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
+//
+commentDelimeter = _{ "//" }
+commentLine = _{ commentDelimeter ~ (!(NEWLINE) ~ ANY)* }
+comment = _{ commentLine | COMMENT }
+///
 
 /*
  * ASSIGNMENTS & DECLARATIONS
  */
-declarationKeyword = _{ constKeyword | globalKeyword }
-assignment = _{
+//
+assignment = !{
 	arrayDeclaration | 
 	arrayAssignment | 
 	taggedVariableAssignment | 
@@ -30,17 +42,19 @@ variableAssignment = !{
 }
 
 taggedVariableAssignment = ${
-	declarationKeyword ~ WHITESPACE+ ~ variableAssignment
+	declarationKeywords ~ WHITESPACE+ ~ variableAssignment
 }
+///
 
 /*
  * ARRAYS
- */ 
+ */
+//
 arrayValue = _{ arrayValues | expression }
 arrayValues = !{ "[" ~ (arrayValue ~ ",")* ~ arrayValue ~ "]" }
 arrayEmptyValues = { "[" ~ "]" }
-array = { arrayValues | arrayEmptyValues }
-arrayIndexing = { identifier ~ arrayValues }
+array = !{ arrayValues | arrayEmptyValues }
+arrayIndexing = ${ identifier ~ arrayValues }
 arraySetting = ${
 	WHITESPACE* ~ assignmentOperator ~ WHITESPACE*
 }
@@ -50,31 +64,40 @@ arrayDeclaration = ${
 arrayAssignment = ${ 
 	arrayIndexing ~ arraySetting ~ expression
 }
+///
 
 /* 
  * EXPRESSIONS
  */
-expression = _{
-	"(" ~ expressionTypes ~ ")" | expressionTypes
+//
+expression = ${
+	term ~ (WHITESPACE* ~ operator ~ WHITESPACE* ~ term)*
 }
-expressionTypes = _{
-	arrayIndexing | array | functionCall | identifier | literal //| binaryOperation
+term = _{
+	(logicalNotOperator ~ WHITESPACE+)* ~ (termTypes | "(" ~ expression ~ ")")
 }
+termTypes = _{
+	arrayIndexing | array | functionCall | identifier | literal
+}
+///
 
 /*
  * FUNCTION CALLS
  */
+//
 functionCall = ${
 	identifier ~ functionParameters
 }
-functionParameters = {
-	"(" ~ ((expression ~ "," ~ WHITESPACE*)* ~ expression)? ~ ")"
+functionParameters = !{
+	"(" ~ ((expression ~ ",")* ~ expression)* ~ ")"
 }
+///
 
 /* 
  * DATA TYPES
  */
-literal = {
+//
+literal = ${
 	(
 	number | 
 	boolean |
@@ -86,7 +109,7 @@ literal = {
 boolean = { "true" | "false" }
 null = { "null" }
 
-number = { negativeNumber | positiveNumber}
+number = _{ negativeNumber | positiveNumber}
 positiveNumber = @{ "+"? ~ numberValue }
 negativeNumber = @{ "-" ~ numberValue }
 numberValue = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)? }
@@ -99,64 +122,177 @@ char = {
     | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
 }
+///
 
 /*
  * IDENTIFIERS 
  */ 
+//
 identifierCharacters = _{ ASCII_ALPHANUMERIC | "_" }
 identifier = @{ !keywords ~ (ASCII_ALPHA | "_") ~ identifierCharacters* }
+///
 
 /* 
  * KEYWORDS 
  */
+//
 keywords = @{
 	(
-	constKeyword | 
-	globalKeyword | 
-	arrayKeyword |
-	operator
+	declarationKeywords |
+	arrayKeywords |
+	forKeywords |
+	ifKeywords |
+	wordOperators 
 	) ~ !identifierCharacters
 }
+
+declarationKeywords = _{ constKeyword | globalKeyword }
 constKeyword = { "const" }
 globalKeyword = { "global" }
-arrayKeyword = { "array"}
+
+arrayKeywords = { arrayKeyword }
+arrayKeyword = { "array" }
+
+forKeywords = _{ forKeyword | toKeyword | nextKeyword | stepKeyword }
+forKeyword = _{ "for" }
+toKeyword = _{ "to" }
+nextKeyword = _{ "next" }
+stepKeyword = _{ "step" }
+
+ifKeywords = _{ ifKeyword | thenKeyword | elseIfKeyword | elseKeyword | endIfKeyword }
+ifKeyword = _{ "if" }
+thenKeyword = _{ "then" }
+elseIfKeyword = _{ "elseif" }
+elseKeyword = _{ "else" }
+endIfKeyword = _{ "endif" }
+///
 
 /* 
  * OPERATORS 
  */
+//
+operator = ${
+	characterOperators |
+	wordOperators ~ WHITESPACE+
+}
 
-// binaryOperation = {
-// 	expression ~ operator ~ expression
-// }
-
-operator = {
+characterOperators = _{
 	additionOperator | 
 	subtractionOperator |
 	multiplicationOperator |
 	divisionOperator |
+	exponentOperator |
+	equalToOperator |
+	notEqualToOperator |
+	lessThanEqualToOperator |
+	greaterThanEqualToOperator |
+	lessThanOperator |
+	greaterThanOperator
+}
+
+wordOperators = _{
 	modulusOperator |
 	quotientOperator |
 	logicalAndOperator |
-	logicalOrOperator |
-	logicalNotOperator
+	logicalOrOperator
 }
 
-additionOperator = { "+" }
-subtractionOperator = { "-" }
+additionOperator = !{ "+" }
+subtractionOperator = !{ "-" }
 multiplicationOperator = { "*" }
-divisionOperator = { "/" }
-exponentOperator = { "^" }
-modulusOperator = { "MOD" }
-quotientOperator = { "DIV" }
+divisionOperator = !{ "/" }
+exponentOperator = !{ "^" }
 
-logicalAndOperator = { "AND" }
-logicalOrOperator = { "OR" }
-logicalNotOperator = { "NOT" }
+equalToOperator = !{ "==" }
+notEqualToOperator = !{ "!=" }
+lessThanOperator = !{ "<" }
+lessThanEqualToOperator = !{ "<=" }
+greaterThanOperator = !{ ">" }
+greaterThanEqualToOperator = !{ ">=" }
+
+modulusOperator = !{ "MOD" }
+quotientOperator = !{ "DIV" }
+logicalAndOperator = !{ "AND" }
+logicalOrOperator = !{ "OR" }
+logicalNotOperator = !{ "NOT" }
 
 assignmentOperator = _{ "=" }
+///
+
+/*
+ * FOR LOOPS
+ */
+//
+forLoop = ${
+	forKeyword ~ 
+	WHITESPACE+ ~
+	forLoopAssignment ~
+	WHITESPACE+ ~
+	toKeyword ~ 
+	WHITESPACE+ ~
+	expression ~
+	WHITESPACE* ~
+	NEWLINE+ ~
+	block ~
+	NEWLINE+ ~
+	WHITESPACE* ~
+	nextKeyword ~
+	WHITESPACE+ ~
+	POP
+}
+
+forLoopAssignment = !{
+	PUSH(identifier) ~ assignmentOperator ~ expression
+}
+///
+
+/*
+ * IF STATEMENT
+ */
+//
+ifStatement = ${
+	ifKeyword ~ 
+	WHITESPACE+ ~
+	expression ~
+	WHITESPACE+ ~
+	thenKeyword ~
+	WHITESPACE* ~
+	NEWLINE+ ~
+	block ~
+	elseIfStatement* ~
+	elseStatement? ~
+	NEWLINE+ ~
+	WHITESPACE* ~
+	endIfKeyword
+}
+
+elseIfStatement = {
+	NEWLINE+ ~
+	WHITESPACE* ~
+	elseIfKeyword ~ 
+	WHITESPACE+ ~
+	expression ~
+	WHITESPACE+ ~
+	thenKeyword ~
+	WHITESPACE* ~
+	NEWLINE+ ~
+	block
+}
+
+elseStatement = {
+	NEWLINE+ ~
+	WHITESPACE* ~
+	elseKeyword ~
+	WHITESPACE* ~
+	NEWLINE+ ~
+	block
+}
+///
 
 /* 
  * MISC 
  */
+//
 WHITESPACE = _{ " " | "\t" }
 COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+///

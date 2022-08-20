@@ -13,4 +13,5 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 pest = "2.1.3"
 pest_derive = "2.1.0"
+thiserror = "1.0.31"
 wasm-bindgen = "0.2.80"
