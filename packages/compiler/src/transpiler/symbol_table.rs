@@ -1,8 +1,8 @@
-use std::collections::{btree_map::OccupiedEntry, HashMap};
+use std::collections::{HashMap};
 
 use pest::iterators::Pair;
 
-use super::errors::{TranspilerError::*, *};
+
 use crate::parser::Rule;
 use crate::utils::denary_to_alphabet;
 

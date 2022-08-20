@@ -1,4 +1,4 @@
-use std::collections::binary_heap::Iter;
+
 use std::iter::Peekable;
 
 use super::errors::{TranspilerError::*, *};
