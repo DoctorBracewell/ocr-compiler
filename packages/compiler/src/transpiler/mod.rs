@@ -31,5 +31,5 @@ fn transpilation_stages(mut rules: Pairs<Rule>) -> Result<String, TranspilerErro
     program.walk_ast(program_rule)?;
     program.initialise_variables();
 
-    Ok(program.text)
+    Ok(program.get_program_string())
 }

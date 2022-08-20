@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::errors::TranspilerError;
+use super::errors::{TranspilerError::*, *};
 use crate::utils::denary_to_alphabet;
 
 type Table = HashMap<String, SymbolTableEntry>;
@@ -19,33 +19,25 @@ pub struct SymbolTable {
 }
 
 impl SymbolTable {
-    pub fn add_variable(&mut self, identifier: &str) -> Result<(), TranspilerError> {
-        let table = &mut self.variables;
-        let identifier_copy = identifier.to_string();
+    pub fn get_or_add_variable(&mut self, identifier: String) -> &mut SymbolTableEntry {
+        let table_size = self.variables.len();
 
-        table.insert(
-            identifier_copy,
-            SymbolTableEntry {
-                minified_name: denary_to_alphabet(table.len().try_into().unwrap()),
+        self.variables
+            .entry(identifier)
+            .or_insert_with(|| SymbolTableEntry {
+                minified_name: denary_to_alphabet(table_size),
                 constant: false,
-            },
-        );
-
-        Ok(())
+            })
     }
 
-    pub fn add_function(&mut self, identifier: &str) -> Result<(), TranspilerError> {
-        let table = &mut self.functions;
-        let identifier_copy = identifier.to_string();
+    pub fn get_or_add_function(&mut self, identifier: String) -> &mut SymbolTableEntry {
+        let table_size = self.functions.len();
 
-        table.insert(
-            identifier_copy,
-            SymbolTableEntry {
-                minified_name: denary_to_alphabet(table.len().try_into().unwrap()),
+        self.functions
+            .entry(identifier)
+            .or_insert_with(|| SymbolTableEntry {
+                minified_name: denary_to_alphabet(table_size),
                 constant: false,
-            },
-        );
-
-        Ok(())
+            })
     }
 }

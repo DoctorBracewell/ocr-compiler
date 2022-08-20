@@ -8,11 +8,16 @@ use pest::iterators::Pair;
 
 #[derive(Default)]
 pub struct JavascriptProgram {
-    pub text: String,
+    program_string: ProgramString,
     symbol_table: SymbolTable,
 }
 
-impl JavascriptProgram {
+#[derive(Default)]
+struct ProgramString {
+    text: String,
+}
+
+impl ProgramString {
     fn push_text(&mut self, text: &str) {
         self.text.push_str(text);
     }
@@ -20,16 +25,19 @@ impl JavascriptProgram {
     fn prepend_text(&mut self, text: String) {
         self.text = text + &self.text;
     }
+}
 
+impl JavascriptProgram {
     pub fn initialise_variables(&mut self) {
-        self.prepend_text(
-            self.symbol_table
-                .variables
-                .into_values()
-                .fold(String::new(), |acc, s| {
-                    acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
-                }),
-        );
+        let text = self
+            .symbol_table
+            .variables
+            .values()
+            .fold(String::new(), |acc, s| {
+                acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
+            });
+
+        self.program_string.prepend_text(text);
     }
 
     pub fn walk_ast(&mut self, program_rule: Pair<Rule>) -> Result<(), TranspilerError> {
@@ -78,24 +86,19 @@ impl JavascriptProgram {
         let mut parts = assignment.into_inner();
         let identifier = parts.next().ok_or(IteratorError)?.as_str().to_string();
 
-        // Add new variable to the symbol table
-        if !self.symbol_table.variables.contains_key(&identifier) {
-            self.symbol_table.add_variable(&identifier)?;
-        }
+        // Create entry in symbol table and extract minified name
+        let SymbolTableEntry { minified_name, .. } =
+            self.symbol_table.get_or_add_variable(identifier);
 
-        // Get minified name from symbol table and push to result
-        let SymbolTableEntry { minified_name, .. } = self
-            .symbol_table
-            .variables
-            .get(&identifier)
-            .ok_or(TranspilationError)?;
+        // Push assignment to program string
+        self.program_string
+            .push_text(&format!("{}{}", minified_name, ASSIGNMENT_OPERATOR));
 
-        self.push_text(&format!("{}{}", minified_name, ASSIGNMENT_OPERATOR));
-
-        // Transpile expression and push to result
+        // Transpile expression and push to program string
         let expr = parts.next().ok_or(IteratorError)?;
         self.expression(expr)?;
 
+        // Push semicolon to program string
         self.end_statement();
 
         Ok(())
@@ -126,6 +129,10 @@ impl JavascriptProgram {
     }
 
     fn end_statement(&mut self) {
-        self.push_text(SEMICOLON);
+        self.program_string.push_text(SEMICOLON);
+    }
+
+    pub fn get_program_string(self) -> String {
+        self.program_string.text
     }
 }

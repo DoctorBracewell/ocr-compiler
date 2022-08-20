@@ -1,7 +1,7 @@
 const ALPHABET: &str = "abcdefghijklmnopqrstuvwxyz";
 
 // Convert a decimal number to an alphabetical string, used for unique minified identifiers in the transpiled result
-pub fn denary_to_alphabet(n: u32) -> String {
+pub fn denary_to_alphabet(n: usize) -> String {
     let mut num = n;
 
     let values = if num == 0 {
