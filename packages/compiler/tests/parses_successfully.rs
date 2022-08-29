@@ -180,7 +180,7 @@ fn invalid_if_statements() {
 // #[test]
 #[allow(dead_code, unused_must_use)]
 fn test() {
-    let program = "NOT NOT (33)";
+    let program = "test = 1";
 
     dbg!(parse_with_program(program));
     panic!();

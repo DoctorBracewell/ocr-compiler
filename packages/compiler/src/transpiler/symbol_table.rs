@@ -1,6 +1,9 @@
-use std::collections::HashMap;
+use std::collections::{HashMap};
 
-use super::errors::TranspilerError;
+use pest::iterators::Pair;
+
+
+use crate::parser::Rule;
 use crate::utils::denary_to_alphabet;
 
 type Table = HashMap<String, SymbolTableEntry>;
@@ -19,33 +22,37 @@ pub struct SymbolTable {
 }
 
 impl SymbolTable {
-    pub fn add_variable(&mut self, identifier: &str) -> Result<(), TranspilerError> {
-        let table = &mut self.variables;
-        let identifier_copy = identifier.to_string();
+    pub fn insert_or_update_variable(&mut self, identifier: &Pair<Rule>) -> &mut SymbolTableEntry {
+        let table_size = self.variables.len();
+        let identifier_string = identifier.as_str().to_string();
 
-        table.insert(
-            identifier_copy,
-            SymbolTableEntry {
-                minified_name: denary_to_alphabet(table.len().try_into().unwrap()),
+        self.variables
+            .entry(identifier_string)
+            .insert_entry(SymbolTableEntry {
+                minified_name: denary_to_alphabet(table_size),
                 constant: false,
-            },
-        );
-
-        Ok(())
+            })
+            .into_mut()
     }
 
-    pub fn add_function(&mut self, identifier: &str) -> Result<(), TranspilerError> {
-        let table = &mut self.functions;
-        let identifier_copy = identifier.to_string();
+    pub fn get_variable_or<E>(
+        &mut self,
+        identifier: &Pair<Rule>,
+        error: E,
+    ) -> Result<&SymbolTableEntry, E> {
+        let identifier_string = identifier.as_str().to_string();
 
-        table.insert(
-            identifier_copy,
-            SymbolTableEntry {
-                minified_name: denary_to_alphabet(table.len().try_into().unwrap()),
+        self.variables.get(&identifier_string).ok_or(error)
+    }
+
+    pub fn get_or_add_function(&mut self, identifier: String) -> &mut SymbolTableEntry {
+        let table_size = self.functions.len();
+
+        self.functions
+            .entry(identifier)
+            .or_insert_with(|| SymbolTableEntry {
+                minified_name: denary_to_alphabet(table_size),
                 constant: false,
-            },
-        );
-
-        Ok(())
+            })
     }
 }

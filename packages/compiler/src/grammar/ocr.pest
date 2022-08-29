@@ -71,7 +71,7 @@ arrayAssignment = ${
  */
 //
 expression = ${
-	term ~ (WHITESPACE* ~ operator ~ WHITESPACE* ~ term)*
+	term ~ (WHITESPACE* ~ (!(logicalNotOperator) ~ operator) ~ WHITESPACE* ~ term)*
 }
 term = _{
 	(logicalNotOperator ~ WHITESPACE+)* ~ (termTypes | "(" ~ expression ~ ")")
@@ -194,7 +194,8 @@ wordOperators = _{
 	modulusOperator |
 	quotientOperator |
 	logicalAndOperator |
-	logicalOrOperator
+	logicalOrOperator |
+	logicalNotOperator
 }
 
 additionOperator = !{ "+" }

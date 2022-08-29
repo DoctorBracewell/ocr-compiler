@@ -1,12 +1,13 @@
 use pest::{error::Error, iterators::Pairs, Parser};
 use wasm_bindgen::prelude::*;
 
+// Setup parser struct
 #[derive(Parser)]
 #[grammar = "grammar/ocr.pest"]
 pub struct OCRParser;
 
 pub fn parse(program: &str) -> Pairs<Rule> {
-   parse_with_program(program).expect("Parse failed!")
+    parse_with_program(program).expect("Parse failed!")
 }
 
 pub fn parse_with_program(program: &str) -> Result<Pairs<Rule>, Error<Rule>> {
