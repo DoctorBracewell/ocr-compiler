@@ -22,14 +22,16 @@ impl JavascriptProgram {
     }
 
     pub fn initialise_variables(&mut self) {
-        self.prepend_text(
-            self.symbol_table
-                .variables
-                .into_values()
-                .fold(String::new(), |acc, s| {
-                    acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
-                }),
-        );
+        let text = self
+            .symbol_table
+            .variables
+            .into_values()
+            .fold(String::new(), |acc, s| {
+                acc + &format!("{}{}{}{}", LET, SPACE, s.minified_name, SEMICOLON)
+            })
+            .to_string();
+
+        self.prepend_text(text.to_string());
     }
 
     pub fn walk_ast(&mut self, program_rule: Pair<Rule>) -> Result<(), TranspilerError> {
