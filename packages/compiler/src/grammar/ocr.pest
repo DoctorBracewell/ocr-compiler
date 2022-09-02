@@ -12,6 +12,7 @@ statement = _{
 	assignment |
 	forLoop |
 	ifStatement | 
+	functionCall |
 	expression
 	) ~ WHITESPACE*
 }
@@ -77,7 +78,7 @@ term = _{
 	(logicalNotOperator ~ WHITESPACE+)* ~ (termTypes | "(" ~ expression ~ ")")
 }
 termTypes = _{
-	arrayIndexing | array | functionCall | identifier | literal
+	arrayIndexing | array | functionCall | property | identifier | literal
 }
 ///
 
@@ -86,7 +87,7 @@ termTypes = _{
  */
 //
 functionCall = ${
-	identifier ~ functionParameters
+	identifier ~ "." ~ identifier ~ functionParameters
 }
 functionParameters = !{
 	"(" ~ ((expression ~ ",")* ~ expression)* ~ ")"
@@ -125,11 +126,13 @@ char = {
 ///
 
 /*
- * IDENTIFIERS 
+ * IDENTIFIERS & PROPERTIES
  */ 
 //
 identifierCharacters = _{ ASCII_ALPHANUMERIC | "_" }
 identifier = @{ !keywords ~ (ASCII_ALPHA | "_") ~ identifierCharacters* }
+
+property = ${ identifier ~ "." ~ identifier }
 ///
 
 /* 

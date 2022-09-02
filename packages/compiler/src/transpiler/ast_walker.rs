@@ -1,13 +1,21 @@
-
 use std::iter::Peekable;
 
 use super::errors::{TranspilerError::*, *};
-use super::symbol_table::{SymbolTable, SymbolTableEntry};
+use super::symbol_table::{SymbolTable, VariableTableEntry};
 use super::transpiler_data::*;
 
 use crate::parser::Rule;
 
 use pest::iterators::{Pair, Pairs};
+
+#[derive(Debug, Clone)]
+pub enum Type {
+    String,
+    Boolean,
+    Number,
+    Void,
+    File,
+}
 
 #[derive(Default)]
 pub struct JavascriptProgram {
@@ -61,7 +69,7 @@ impl JavascriptProgram {
                 Rule::assignment => self.assignment(statement)?,
                 Rule::forLoop => unimplemented!(),
                 Rule::ifStatement => unimplemented!(),
-                Rule::expression => unimplemented!(),
+                Rule::expression => self.expression(statement).map(|_| ())?,
                 _ => unreachable!(),
             };
 
@@ -93,8 +101,9 @@ impl JavascriptProgram {
         let identifier = parts.next().ok_or(IteratorError)?;
 
         // Create entry in symbol table and extract minified name
-        let SymbolTableEntry { minified_name, .. } =
-            self.symbol_table.insert_or_update_variable(&identifier);
+        let VariableTableEntry { minified_name, .. } = self
+            .symbol_table
+            .insert_or_update_variable(&identifier, Type::Void);
 
         // Push assignment to program string
         self.program_string
@@ -102,26 +111,40 @@ impl JavascriptProgram {
 
         // Transpile expression and push to program string
         let expr = parts.next().ok_or(IteratorError)?;
-        self.expression(expr)?;
+        let data_type = self.expression(expr)?;
+
+        self.symbol_table
+            .set_variable_type_or(&identifier, data_type, TranspilationError)?;
 
         Ok(())
     }
 
-    fn expression(&mut self, assignment: Pair<Rule>) -> Result<(), TranspilerError> {
-        let mut parts = assignment.into_inner().peekable();
+    fn expression(&mut self, expression: Pair<Rule>) -> Result<Type, TranspilerError> {
+        let expr = &expression.as_str();
+        let mut parts = expression.into_inner().peekable();
+        let mut data_type = Type::Void;
+
+        self.program_string.push_text(OPEN_PARENTHESIS);
 
         while parts.peek().is_some() {
-            self.term(&mut parts)?;
+            data_type = self.term(&mut parts, expr)?;
 
             if let Some(operator) = parts.next() {
-                self.operator(operator)?;
+                data_type = self.operator(operator)?;
             }
         }
 
-        Ok(())
+        self.program_string.push_text(CLOSE_PARENTHESIS);
+
+        Ok(data_type)
     }
 
-    fn term(&mut self, parts: &mut Peekable<Pairs<Rule>>) -> Result<(), TranspilerError> {
+    fn term(
+        &mut self,
+        parts: &mut Peekable<Pairs<Rule>>,
+        expression: &str,
+    ) -> Result<Type, TranspilerError> {
+        print!("yes");
         let mut acc = 0;
 
         while let Some(part) = parts.peek() {
@@ -142,38 +165,153 @@ impl JavascriptProgram {
         let part = parts.next().ok_or(IteratorError)?;
 
         match part.as_rule() {
-            Rule::identifier => self.identifier(part)?,
+            Rule::identifier => self.identifier(part),
+            Rule::functionCall => self.function_call(part, Some(expression)),
+            Rule::property => self.property(part),
+            Rule::literal => self.literal(),
             _ => unimplemented!(),
-        };
-
-        Ok(())
+        }
     }
 
-    fn operator(&mut self, operator_rule: Pair<Rule>) -> Result<(), TranspilerError> {
+    fn operator(&mut self, operator_rule: Pair<Rule>) -> Result<Type, TranspilerError> {
         // Exract operator type from operator rule
         let operator = operator_rule.into_inner().next().ok_or(IteratorError)?;
 
-        match operator.as_rule() {
-            Rule::additionOperator => self.program_string.push_text(ADDITION_OPERATOR),
-            Rule::subtractionOperator => self.program_string.push_text(SUBTRACTION_OPERATOR),
+        let data = match operator.as_rule() {
+            Rule::additionOperator => (ADDITION_OPERATOR, Type::Number),
+            Rule::subtractionOperator => (SUBTRACTION_OPERATOR, Type::Number),
             _ => unreachable!(),
         };
 
-        Ok(())
+        self.program_string.push_text(data.0);
+
+        Ok(data.1)
     }
 
-    fn identifier(&mut self, identifier: Pair<Rule>) -> Result<(), TranspilerError> {
+    fn identifier(&mut self, identifier: Pair<Rule>) -> Result<Type, TranspilerError> {
         // Check if identifier exists in symbol table
         let variable = self.symbol_table.get_variable_or(
             &identifier,
-            InvalidReference {
+            InvalidVariable {
                 identifier: identifier.as_str().to_string(),
             },
         )?;
 
         self.program_string.push_text(&variable.minified_name);
 
+        Ok(variable.data_type.clone())
+    }
+
+    fn property(&mut self, term: Pair<Rule>) -> Result<Type, TranspilerError> {
+        // Extract identifier and property
+        let mut parts = term.into_inner();
+        let identifier = parts.next().ok_or(IteratorError)?;
+        let property = parts.next().ok_or(IteratorError)?;
+
+        // Check if identifier exists in symbol table
+        let variable = self.symbol_table.get_variable_or(
+            &identifier,
+            InvalidVariable {
+                identifier: identifier.as_str().to_string(),
+            },
+        )?;
+
+        let error = Err(InvalidProperty {
+            identifier: identifier.as_str().to_string(),
+            property: property.as_str().to_string(),
+        });
+
+        // Short-circuit if variable.data_type is not a string
+        if !matches!(variable.data_type, Type::String) {
+            return error;
+        }
+
+        self.program_string.push_text(&variable.minified_name);
+        self.program_string.push_text(DOT);
+
+        // If the function call is in an expression, and the function returns void, throw a void error
+        match property.as_str() {
+            "length" => {
+                self.program_string.push_text(LENGTH_PROPERTY);
+                Ok(Type::Number)
+            }
+            "upper" => {
+                self.program_string.push_text(TO_UPPER_CASE_FUNCTION);
+                Ok(Type::String)
+            }
+            "lower" => {
+                self.program_string.push_text(TO_LOWER_CASE_FUNCTION);
+                Ok(Type::String)
+            }
+            _ => error,
+        }
+    }
+
+    fn function_call(
+        &mut self,
+        function_call: Pair<Rule>,
+        expression: Option<&str>,
+    ) -> Result<Type, TranspilerError> {
+        let mut parts = function_call.into_inner().peekable();
+
+        // if let Rule::identifier = parts.peek().ok_or(IteratorError)?.as_rule() {
+        //     let identifier = parts.next().ok_or(IteratorError)?;
+
+        //     let variable = self.symbol_table.get_variable_or(
+        //         &identifier,
+        //         InvalidFunction {
+        //             identifier: identifier.as_str().to_string(),
+        //         },
+        //     )?;
+
+        //     //todo set up per-variable functions
+        // }
+
+        let identifier = parts.next().ok_or(IteratorError)?;
+
+        let function = self.symbol_table.get_function_or(
+            &identifier,
+            InvalidFunction {
+                identifier: identifier.as_str().to_string(),
+            },
+        )?;
+
+        let returns = function.returns.clone();
+
+        if let Some(expression) = expression {
+            if let Type::Void = function.returns {
+                return Err(VoidError {
+                    identifier: identifier.as_str().to_string(),
+                    expression: expression.to_string(),
+                });
+            }
+        }
+
+        self.program_string.push_text(&function.minified_name);
+        self.program_string.push_text(OPEN_PARENTHESIS);
+
+        self.function_parameters(parts.next().ok_or(IteratorError)?)?;
+
+        self.program_string.push_text(CLOSE_PARENTHESIS);
+
+        Ok(returns)
+    }
+
+    fn function_parameters(&mut self, function_call: Pair<Rule>) -> Result<(), TranspilerError> {
+        let parts = function_call.into_inner();
+
+        for expression in parts {
+            self.expression(expression)?;
+            self.program_string.push_text(COMMA);
+        }
+
         Ok(())
+    }
+
+    fn literal(&mut self) -> Result<Type, TranspilerError> {
+        self.program_string.push_text("1");
+
+        Ok(Type::String)
     }
 
     fn end_statement(&mut self) {
