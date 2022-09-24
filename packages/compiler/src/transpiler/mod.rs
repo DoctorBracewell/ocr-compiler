@@ -4,7 +4,7 @@ use pest::iterators::Pairs;
 
 mod ast_walker;
 mod errors;
-mod symbol_table;
+mod scopes;
 mod transpiler_data;
 
 use ast_walker::JavascriptProgram;

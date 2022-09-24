@@ -1,7 +1,7 @@
 use std::iter::Peekable;
 
 use super::errors::{TranspilerError::*, *};
-use super::symbol_table::{SymbolTable, VariableTableEntry};
+use super::scopes::{Scope, VariableTableEntry};
 use super::transpiler_data::*;
 
 use crate::parser::Rule;
@@ -15,6 +15,12 @@ pub enum Type {
     Number,
     Void,
     File,
+}
+
+impl Default for Type {
+    fn default() -> Self {
+        Type::Void
+    }
 }
 
 #[derive(Default)]
@@ -52,9 +58,11 @@ impl JavascriptProgram {
     }
 
     pub fn walk_ast(&mut self, program_rule: Pair<Rule>) -> Result<(), TranspilerError> {
+        let mut scope = Scope::default();
+
         for rule in program_rule.into_inner() {
             match rule.as_rule() {
-                Rule::block => self.block(rule)?,
+                Rule::block => self.block(rule, scope)?,
                 Rule::EOI => (),
                 _ => unreachable!(),
             }
@@ -63,13 +71,13 @@ impl JavascriptProgram {
         Ok(())
     }
 
-    fn block(&mut self, block: Pair<Rule>) -> Result<(), TranspilerError> {
+    fn block(&mut self, block: Pair<Rule>, scope: Scope) -> Result<(), TranspilerError> {
         for statement in block.into_inner() {
             match statement.as_rule() {
-                Rule::assignment => self.assignment(statement)?,
-                Rule::forLoop => unimplemented!(),
-                Rule::ifStatement => unimplemented!(),
-                Rule::expression => self.expression(statement).map(|_| ())?,
+                Rule::assignment => self.assignment(statement, scope)?,
+                // Rule::forLoop => unimplemented!(),
+                // Rule::ifStatement => unimplemented!(),
+                // Rule::expression => self.expression(statement).map(|_| ())?,
                 _ => unreachable!(),
             };
 
@@ -80,14 +88,14 @@ impl JavascriptProgram {
         Ok(())
     }
 
-    fn assignment(&mut self, assignment: Pair<Rule>) -> Result<(), TranspilerError> {
+    fn assignment(&mut self, assignment: Pair<Rule>, scope: Scope) -> Result<(), TranspilerError> {
         let assignment_type = assignment.into_inner().next().ok_or(IteratorError)?;
 
         match assignment_type.as_rule() {
-            Rule::arrayDeclaration => unimplemented!(),
-            Rule::arrayAssignment => unimplemented!(),
-            Rule::taggedVariableAssignment => unimplemented!(),
-            Rule::variableAssignment => self.variable_assignment(assignment_type)?,
+            // Rule::arrayDeclaration => unimplemented!(),
+            // Rule::arrayAssignment => unimplemented!(),
+            // Rule::taggedVariableAssignment => unimplemented!(),
+            Rule::variableAssignment => self.variable_assignment(assignment_type, scope)?,
 
             _ => unreachable!(),
         };
@@ -95,7 +103,11 @@ impl JavascriptProgram {
         Ok(())
     }
 
-    fn variable_assignment(&mut self, assignment: Pair<Rule>) -> Result<(), TranspilerError> {
+    fn variable_assignment(
+        &mut self,
+        assignment: Pair<Rule>,
+        scope: Scope,
+    ) -> Result<(), TranspilerError> {
         // Extract data from statement
         let mut parts = assignment.into_inner();
         let identifier = parts.next().ok_or(IteratorError)?;

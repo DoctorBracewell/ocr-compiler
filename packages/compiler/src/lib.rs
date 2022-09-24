@@ -1,5 +1,3 @@
-#![feature(entry_insert)]
-
 use wasm_bindgen::prelude::*;
 
 extern crate pest;
